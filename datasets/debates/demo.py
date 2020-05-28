@@ -1,8 +1,11 @@
 import sys
-import tensorflow as tf
+#import tensorflow as tf
 from sklearn.metrics import f1_score, accuracy_score
 from tensorlog import simple
 from collections import Counter
+
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 def runMain(argv):
 
