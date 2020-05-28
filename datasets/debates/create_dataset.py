@@ -49,6 +49,18 @@ for dataset in DATASETS:
         inferred_post_eval = os.path.join(dataset, fold, "inferred_post_eval.exam")
         inferred_post_eval = open(inferred_post_eval, "w")
 
+        inferred_user_learn = os.path.join(dataset, fold, "inferred_user_learn.exam")
+        inferred_user_learn = open(inferred_user_learn, "w")
+
+        inferred_user_eval = os.path.join(dataset, fold, "inferred_user_eval.exam")
+        inferred_user_eval = open(inferred_user_eval, "w")
+
+        inferred_voter_learn = os.path.join(dataset, fold, "inferred_voter_learn.exam")
+        inferred_voter_learn = open(inferred_voter_learn, "w")
+
+        inferred_voter_eval = os.path.join(dataset, fold, "inferred_voter_eval.exam")
+        inferred_voter_eval = open(inferred_voter_eval, "w")
+
         for split in SPLITS:
             # participates_in : just to be able to find not author
             debate_participants = {}
@@ -156,6 +168,40 @@ for dataset in DATASETS:
                         inferred_post_eval.write("{0}\t{1}\t{2}\n".format("inferred_post", post_id, "con"))
                     elif label == "1.0" and split == "eval":
                         inferred_post_eval.write("{0}\t{1}\t{2}\n".format("inferred_post", post_id, "pro"))
+                    else:
+                        print(line)
+                        exit()
+
+            # user truth
+            user_stance = os.path.join(curpath, split, "is_pro_user_truth.txt")
+            with open(user_stance) as fp:
+                for line in fp:
+                    _, user_id, label = line.strip().split('\t')
+                    if label == "0.0" and split == "learn":
+                        inferred_user_learn.write("{0}\t{1}\t{2}\n".format("inferred_user", user_id, "con"))
+                    elif label == "1.0" and split == "learn":
+                        inferred_user_learn.write("{0}\t{1}\t{2}\n".format("inferred_user", user_id, "pro"))
+                    elif label == "0.0" and split == "eval":
+                        inferred_user_eval.write("{0}\t{1}\t{2}\n".format("inferred_user", user_id, "con"))
+                    elif label == "1.0" and split == "eval":
+                        inferred_user_eval.write("{0}\t{1}\t{2}\n".format("inferred_user", user_id, "pro"))
+                    else:
+                        print(line)
+                        exit()
+
+            # voter truth
+            voter_stance = os.path.join(curpath, split, "is_pro_voter_truth.txt")
+            with open(voter_stance) as fp:
+                for line in fp:
+                    _, user_id, label = line.strip().split('\t')
+                    if label == "0.0" and split == "learn":
+                        inferred_voter_learn.write("{0}\t{1}\t{2}\n".format("inferred_voter", user_id, "con"))
+                    elif label == "1.0" and split == "learn":
+                        inferred_voter_learn.write("{0}\t{1}\t{2}\n".format("inferred_voter", user_id, "pro"))
+                    elif label == "0.0" and split == "eval":
+                        inferred_voter_eval.write("{0}\t{1}\t{2}\n".format("inferred_voter", user_id, "con"))
+                    elif label == "1.0" and split == "eval":
+                        inferred_voter_eval.write("{0}\t{1}\t{2}\n".format("inferred_voter", user_id, "pro"))
                     else:
                         print(line)
                         exit()
