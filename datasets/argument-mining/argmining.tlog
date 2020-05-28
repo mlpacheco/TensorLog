@@ -1,0 +1,6 @@
+inferred_type(A,premise) <= inferred_reln(A,B)
+inferred_type(B,) <= inferred_reln(A,B) & has_type(A,X)
+
+inferred_reln(A,B) <= reln(A,B)
+inferred_type(A,X) <= has_type(A,X)
+inferred_type(B,Y) <= has_type(B,Y)

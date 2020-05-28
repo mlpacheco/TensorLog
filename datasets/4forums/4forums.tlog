@@ -1,0 +1,4 @@
+inferred_stance(A,X) <= stance(A,X)
+inferred_stance(A,X) <= agree(A,B) & stance(B,X)
+inferred_stance(B,X) <= agree(A,B) & stance(A,X)
+inferred_stance(A,X) <= same_thread_author(A,B) & stance(B,X)

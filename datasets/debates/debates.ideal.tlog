@@ -1,0 +1,14 @@
+inferred_post(P,X) <= is_author(P,U) & inferred_user(U,X)
+inferred_post(P,X) <= same_author(P,Q) & post_stance(Q,X)
+inferred_post(P,X) <= opposing_author(P,Q) & opposing_stances(X,Y) & post_stance(Q,Y)
+
+inferred_user(U,X) <= is_author(P,U) & post_stance(P,X)
+inferred_user(U,X) <= opposing_users(U,W) & opposing_stances(X,Y) & user_stance(W,Y)
+inferred_user(U,X) <= vote_for(V,U) & inferred_voter(V,X)
+
+inferred_voter(V,X) <= vote_same(V,W) & voter_stance(W,X)
+inferred_voter(V,X) <= vote_for(V,U) & user_stance(U,X)
+
+inferred_post(P,X) <= post_stance(P,X)
+inferred_user(U,X) <= user_stance(U,X)
+inferred_voter(V,X) <= voter_stance(V,X)

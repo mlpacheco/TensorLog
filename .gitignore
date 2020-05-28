@@ -7,6 +7,7 @@ tmp-cache
 *.pyc
 *.db
 *.mat
+*.csv
 
 tensorlog/fb15k-valid.db
 tensorlog/fb15k-valid.db/*
@@ -19,3 +20,5 @@ datasets/*/eval.log
 datasets/*/expt.log
 datasets/*/tmp-cache/*
 datasets/*/inputs/*
+
+*.cfacts

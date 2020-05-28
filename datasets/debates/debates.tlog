@@ -1,0 +1,6 @@
+inferred_post(P,X) <= is_author(P,U) & user_stance(U,X)
+inferred_post(P,X) <= same_author(P,Q) & post_stance(Q,X)
+inferred_post(P,X) <= opposing_author(P,Q) & opposing_stances(X,Y) & post_stance(Q,Y)
+
+inferred_post(P,X) <= post_stance(P,X)
+inferred_user(U,X) <= user_stance(U,X)
