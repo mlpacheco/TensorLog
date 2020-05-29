@@ -14,11 +14,12 @@ def runMain(argv):
   opts = simple.Options()
   opts.regularizer_scale = 0.1
   opts.link_scale = 0.9
-  opts.epochs = 20 # 0 for no learning
+  opts.epochs = 30 # 0 for no learning
   opts.max_depth = 100
   opts.dataset = "rand"
   opts.fold = "f0"
-  opts.learning_rate = 0.01
+  opts.learning_rate = 0.5
+  opts.opt_predicate = 'post'
 
   opts.infer_stance = True
   opts.infer_agree = False
@@ -27,16 +28,28 @@ def runMain(argv):
   opts.set_from_command_line(argv)
   # define the input file names from the stems
   factFile = '{0}/{1}/all.cfacts'.format(opts.dataset, opts.fold)
-  trainFile = '{0}/{1}/inferred_post_learn.exam'.format(opts.dataset, opts.fold)
-  testFile = '{0}/{1}/inferred_post_eval.exam'.format(opts.dataset, opts.fold)
-  mode = 'inferred_post/io'
+  if opts.opt_predicate == "post":
+      trainFile = '{0}/{1}/inferred_post_learn.exam'.format(opts.dataset, opts.fold)
+      testFile = '{0}/{1}/inferred_post_eval.exam'.format(opts.dataset, opts.fold)
+      mode = 'inferred_post/io'
+      program = 'debates.post.tlog'
+  elif opts.opt_predicate == 'user':
+      trainFile = '{0}/{1}/inferred_user_learn.exam'.format(opts.dataset, opts.fold)
+      testFile = '{0}/{1}/inferred_user_eval.exam'.format(opts.dataset, opts.fold)
+      mode = 'inferred_user/io'
+      program = 'debates.user.tlog'
+  elif opts.opt_predicate == 'voter':
+      trainFile = '{0}/{1}/inferred_voter_learn.exam'.format(opts.dataset, opts.fold)
+      testFile = '{0}/{1}/inferred_voter_eval.exam'.format(opts.dataset, opts.fold)
+      mode = 'inferred_voter/io'
+      program = 'debates.voter.tlog'
 
   #testFile_agree = '{0}/{1}/inferred_agree_eval.exam'.format(opts.dataset, opts.fold)
 
   print(factFile, trainFile, testFile)
 
   # construct a Compiler object
-  tlog = simple.Compiler(db=factFile,prog='debates.tlog')
+  tlog = simple.Compiler(db=factFile,prog=program)
 
   # tweak the program and database
   tlog.prog.maxDepth = opts.max_depth
@@ -46,9 +59,9 @@ def runMain(argv):
   # specify which relations will be treated as parameters
   tlog.mark_db_predicate_trainable('post_stance/2')
   tlog.mark_db_predicate_trainable('user_stance/2')
-  #tlog.mark_db_predicate_trainable('voter_stance/2')
-  #tlog.mark_db_predicate_trainable('vote_for/2')
-  #tlog.mark_db_predicate_trainable('vote_same/2')
+  tlog.mark_db_predicate_trainable('voter_stance/2')
+  tlog.mark_db_predicate_trainable('vote_for/2')
+  tlog.mark_db_predicate_trainable('vote_same/2')
 
   # compile the rules, plus a query mode, into the inference function,
   # which we will use for testing
@@ -98,6 +111,7 @@ def runMain(argv):
   # run the optimizer for fixed number of epochs
   (tx,ty) = trainData[mode]
   train_fd = {tlog.input_placeholder_name(mode):tx, tlog.target_output_placeholder_name(mode):ty}
+  max_performance = 0
   for i in range(opts.epochs):
     session.run(train_step, feed_dict=train_fd)
     #yt = session.run(y_true, feed_dict=train_fd)
@@ -108,7 +122,11 @@ def runMain(argv):
     #yp_test = session.run(y_pred, feed_dict=test_fd)
     #macro_f1_test = f1_score(yt_test, yp_test, average='macro', labels=label_list)
 
-    print('epoch',i+1,'train loss, accuracy and macro f1',session.run([unregularized_loss,accuracy], feed_dict=train_fd))
+    test_accuracy = session.run(accuracy, feed_dict=test_fd)
+    if test_accuracy > max_performance:
+        max_performance = test_accuracy
+
+    print('epoch',i+1,'train loss, accuracy and macro f1',session.run([unregularized_loss,accuracy], feed_dict=train_fd), test_accuracy)
     #print('test macro f1',macro_f1)
 
   # save the learned model
@@ -126,6 +144,7 @@ def runMain(argv):
   print('initial test acc',initial_accuracy)
   #print('initial test macro f1',initial_macro_f1)
   print('STANCE= final test acc',final_accuracy)
+  print('STANCE= best test acc',max_performance)
   #print('STANCE= final test macro f1',final_macro_f1)
 
   '''
